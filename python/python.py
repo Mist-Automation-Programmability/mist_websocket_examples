@@ -12,7 +12,16 @@ site_id = ''
 
 def on_message(ws, message):
     global msg_received
-    print('onmessage', message)
+    print('new message'.center(80, "-"))
+    try:
+        message_json = json.loads(message)
+        data_json = json.loads(message_json.get("data", {}))
+        print(f"event: {message_json.get('event')}")
+        print(f"channel: {message_json.get('channel')}")
+        print("data:")
+        print(json.dumps(data_json, indent=2))
+    except:
+        print(message)
 
 
 def on_error(ws, error):
@@ -28,12 +37,12 @@ def on_close(wsapp, close_status_code, close_msg):
 
 def on_open(ws):
     print('onopen')
-    ws.send(json.dumps({'subscribe': '/sites/{0}/devices'.format(site_id)}))
+    ws.send(json.dumps({'subscribe': f'/sites/{site_id}/stats/devices'}))
 
 
 if __name__ == "__main__":
     ws = websocket.WebSocketApp("wss://api-ws.mist.com/api-ws/v1/stream",
-                                header={'Authorization': 'Token {0}'.format(token)},
+                                header={'Authorization': f'Token {token}'},
                                 on_message=on_message,
                                 on_error=on_error,
                                 on_close=on_close)

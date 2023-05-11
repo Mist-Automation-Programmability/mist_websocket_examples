@@ -1,0 +1,2 @@
+python-dotenv
+websocket-client==0.44.0
