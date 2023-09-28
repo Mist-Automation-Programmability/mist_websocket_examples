@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 
 import websocket  # websocket-client==0.44.0
@@ -14,7 +15,7 @@ MIST_SITE_ID = ''
 
 def on_message(ws, message):
     global MSG_RECEIVED
-    print('new message'.center(80, "-"))
+    print(f' new message - {datetime.now()} '.center(80, "-"))
     try:
         message_json = json.loads(message)
         data_json = json.loads(message_json.get("data", {}))
