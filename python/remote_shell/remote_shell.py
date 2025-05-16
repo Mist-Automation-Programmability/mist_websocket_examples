@@ -78,21 +78,22 @@ MIST_HOST = "api.mist.com"
 MIST_APITOKEN = ''
 MIST_SITE_ID = '00000000-0000-0000-0000-000000000000'
 MIST_DEVICE_ID = '00000000-0000-0000-1000-000000000000'
-LOG_FILE="./websocket.log"
+LOG_FILE = "./websocket.log"
 
 
 class MistSocket:
     """
     Handles the WebSocket connection to the Mist shell, manages terminal resize, input/output,
     and keyboard event listening for interactive shell sessions.
-    
+
     Args:
         uri (str): The WebSocket URI to connect to.
     """
-    def __init__(self, uri:str) -> None:
+
+    def __init__(self, uri: str) -> None:
         """
         Initializes the MistSocket with the given WebSocket URI.
-        
+
         Args:
             uri (str): The WebSocket URI.
         """
@@ -104,25 +105,30 @@ class MistSocket:
         Starts the WebSocket connection, resizes the terminal, and begins listening for keyboard events.
         Launches a thread for incoming WebSocket messages and listens for keyboard input to send to the shell.
         """
-        #websocket.enableTrace(True)
+        # websocket.enableTrace(True)
         self.ws = websocket.create_connection(self.uri)
         self._resize()
         while not self.ws.connected:
             time.sleep(1)
         thread_in = threading.Thread(target=self._ws_in)
         thread_in.start()
-        listen_keyboard(on_release=self._ws_out, delay_second_char=0, delay_other_chars=0, lower=False)
+        listen_keyboard(
+            on_release=self._ws_out,
+            delay_second_char=0,
+            delay_other_chars=0,
+            lower=False
+        )
 
     def _pty_size(self):
         """
         Gets the current terminal size (rows, columns).
-        
+
         Returns:
             tuple: (rows, columns) of the terminal.
         """
         rows, cols = 24, 80
         cols, rows = shutil.get_terminal_size()
-        #print ('cols=', cols, '  rows=', rows)
+        # print ('cols=', cols, '  rows=', rows)
         return rows, cols
 
     def _resize(self):
@@ -154,7 +160,7 @@ class MistSocket:
         """
         Handles keyboard events and sends the corresponding key codes to the WebSocket server.
         Special handling for navigation keys and shell exit.
-        
+
         Args:
             key (str): The key pressed.
         """
@@ -184,26 +190,27 @@ class MistSocket:
                     return
                 else:
                     k = key
-                data=f"\00{k}"
+                data = f"\00{k}"
                 data_byte = bytearray()
                 data_byte.extend(map(ord, data))
-                try:  
+                try:
                     self.ws.send_binary(data_byte)
                 except:
-                    print('## Exception on key-enter thread. Perhaps lost connection ##')
+                    print(
+                        '## Exception on key-enter thread. Perhaps lost connection ##')
                     return
 
 
-def _load_env(env_file:str, mist_host:str, mist_apitoken:str, mist_site_id:str):
+def _load_env(env_file: str, mist_host: str, mist_apitoken: str, mist_site_id: str):
     """
     Loads environment variables from a .env file and overrides the provided Mist API parameters if present.
-    
+
     Args:
         env_file (str): Path to the .env file.
         mist_host (str): Default Mist host.
         mist_apitoken (str): Default Mist API token.
         mist_site_id (str): Default Mist site ID.
-    
+
     Returns:
         tuple: (mist_host, mist_apitoken, mist_site_id) with values from the environment or defaults.
     """
@@ -221,27 +228,28 @@ def _load_env(env_file:str, mist_host:str, mist_apitoken:str, mist_site_id:str):
     return mist_host, mist_apitoken, mist_site_id
 
 
-def get_shell_info(mist_host:str, mist_site_id:str, mist_device_id:str, mist_apitoken:str):
+def get_shell_info(mist_host: str, mist_site_id: str, mist_device_id: str, mist_apitoken: str):
     """
     Requests shell connection information from the Mist API for a given device.
-    
+
     Args:
         mist_host (str): Mist API host.
         mist_site_id (str): Mist site ID.
         mist_device_id (str): Mist device ID.
         mist_apitoken (str): Mist API token.
-    
+
     Returns:
         dict: Shell connection data (including WebSocket URL) if successful, else None.
     """
     url = f"https://{mist_host}/api/v1/sites/{mist_site_id}/devices/{mist_device_id}/shell"
-    headers={'Authorization': f'Token {mist_apitoken}'}
+    headers = {'Authorization': f'Token {mist_apitoken}'}
     response = requests.post(url=url, headers=headers, json={})
     if response.status_code == 200:
         data = response.json()
         return data
 
-def usage(err:str=""):
+
+def usage(err: str = ""):
     print("""
 -------------------------------------------------------------------------------
 
@@ -297,7 +305,7 @@ Examples:
     python3 remote_shell.py --site=203d3d02-xxxx-xxxx-xxxx-76896a3330f4 --device=203d3d02-xxxx-xxxx-xxxx-76896a3330f4
 
 """)
-    if (err): 
+    if (err):
         print(f"ERROR: {err}")
     sys.exit(0)
 
@@ -306,7 +314,7 @@ def start(env_file, mist_host, mist_site_id, mist_device_id, mist_apitoken):
     """
     Main entry point for starting the remote shell session. Loads environment variables, prints settings,
     retrieves shell info, and starts the MistSocket client.
-    
+
     Args:
         env_file (str): Path to the .env file.
         mist_host (str): Mist API host.
@@ -315,18 +323,24 @@ def start(env_file, mist_host, mist_site_id, mist_device_id, mist_apitoken):
         mist_apitoken (str): Mist API token.
     """
     logging.basicConfig(
-    format="%(asctime)s %(message)s",
-    level=logging.DEBUG,filename=LOG_FILE,filemode='w'
-)
-    mist_host, mist_apitoken, mist_site_id = _load_env(env_file, mist_host, mist_apitoken, mist_site_id)
+        format="%(asctime)s %(message)s",
+        level=logging.DEBUG, filename=LOG_FILE, filemode='w'
+    )
+    mist_host, mist_apitoken, mist_site_id = _load_env(
+        env_file,
+        mist_host,
+        mist_apitoken,
+        mist_site_id
+    )
     mist_apitoken = mist_apitoken.split(",")[0]
-    
+
     print(" SETTINGS ".center(80, "-"))
     print(f"mist_host     : {mist_host}")
     print(f"mist_apitoken : {mist_apitoken[:6]}...{mist_apitoken[-6:]}")
     print(f"mist_site_id  : {mist_site_id}")
     print(f"MIST_DEVICE_ID: {mist_device_id}")
-    WS_DATA = get_shell_info(mist_host, mist_site_id, mist_device_id, mist_apitoken)
+    WS_DATA = get_shell_info(mist_host, mist_site_id,
+                             mist_device_id, mist_apitoken)
 
     print(" WS DATA ".center(80, "-"))
     print(WS_DATA)
@@ -337,7 +351,7 @@ def start(env_file, mist_host, mist_site_id, mist_device_id, mist_apitoken):
 
 
 #####################################################################
-##### ENTRY POINT ####
+#####  ENTRY POINT ####
 if __name__ == "__main__":
     try:
         opts, args = getopt.getopt(
