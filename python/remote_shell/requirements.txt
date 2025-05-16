@@ -2,4 +2,3 @@ python-dotenv
 requests
 websocket-client==0.44.0
 sshkeyboard
-shutil
