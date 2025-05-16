@@ -36,7 +36,7 @@ Configuration:
 
     Best Practice:
       - Store MIST_HOST and MIST_APITOKEN in an environment file.
-      - Provide site and device IDs via command-line arguments.
+      - Provide site and device ID via command-line arguments.
 
 -------------------------------------------------------------------------------
 Command-Line Arguments:
@@ -280,7 +280,7 @@ Configuration:
 
     Best Practice:
       - Store MIST_HOST and MIST_APITOKEN in an environment file.
-      - Provide site and device IDs via command-line arguments.
+      - Provide site and device ID via command-line arguments.
 
 -------------------------------------------------------------------------------
 Command-Line Arguments:
