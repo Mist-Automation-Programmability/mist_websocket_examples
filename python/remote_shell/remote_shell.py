@@ -247,6 +247,12 @@ def get_shell_info(mist_host: str, mist_site_id: str, mist_device_id: str, mist_
     if response.status_code == 200:
         data = response.json()
         return data
+    else:
+        print(" ERROR ".center(80, "-"))
+        print("Unable to start the remote shell session. Please check the site_id, device_id, apitoken and cloud host.")
+        if response.json():
+            print(response.json())
+        sys.exit(0)
 
 
 def usage(err: str = ""):
